@@ -5,7 +5,7 @@ import axios from 'axios'
 
 <template>
   <div class="container">
-    <button @click="logout">Logout</button>
+    <h1 id="titulo">{{ items.length == 0 ? "No hay sitios registrados" : "Your sites" }}</h1>
     <WebSiteList :items="items" :borrar="borrar" :modificar="modificarSitio" />
     <button class="btn" @click="guardarSitio">Agregar Sitio</button>
   </div>
@@ -22,16 +22,10 @@ export default {
     return {
       url: 'http://[::1]:3000/sitios/',
       items: [],
+      isAuthenticated: this.$auth0.isAuthenticated,
     }
   },
   methods: {
-    logout() {
-      this.$auth0.logout({
-        logoutParams: {
-          returnTo: "http://localhost:5173/login"
-        }
-      });
-    },
     guardarSitio() {
       this.$router.push('/guardar');
     },
@@ -59,7 +53,6 @@ export default {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
   align-items: center;
 }
 
@@ -71,5 +64,14 @@ export default {
   font-weight: bolder;
   border: 1px solid black;
   font-family: Arial, Helvetica, sans-serif;
+  margin-top: 20px;
+}
+
+#titulo {
+    text-align: left;
+    width: 100%;
+    margin-left: 20px;
+    color: white;
+    text-shadow: 4px 4px 4px black;
 }
 </style>
