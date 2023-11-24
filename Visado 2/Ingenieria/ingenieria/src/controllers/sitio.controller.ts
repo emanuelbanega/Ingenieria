@@ -7,13 +7,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,8 +23,8 @@ import {SitioRepository} from '../repositories';
 export class SitioController {
   constructor(
     @repository(SitioRepository)
-    public sitioRepository : SitioRepository,
-  ) {}
+    public sitioRepository: SitioRepository,
+  ) { }
 
   @post('/sitios')
   @response(200, {
@@ -37,7 +37,7 @@ export class SitioController {
         'application/json': {
           schema: getModelSchemaRef(Sitio, {
             title: 'NewSitio',
-            
+
           }),
         },
       },
@@ -147,4 +147,50 @@ export class SitioController {
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.sitioRepository.deleteById(id);
   }
+
+  @get('/sleep', {
+    parameters: [{
+      name: 'ms', schema: {type: 'number'}, in:
+        'query'
+    }],
+    responses: {
+      '200': {
+        description: 'Sleep in ms',
+        content: {
+          'application/json': {
+            schema: {type: 'string'},
+          },
+        },
+      },
+    },
+  })
+  async sleep(ms: number) {
+    await this.delay(ms)
+    return `Waking up after ${ms} ms`;
+  }
+  delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  @get('/fib', {
+    parameters: [{name: 'num', schema: {type: 'number'}, in: 'query'}],
+    responses: {
+      '200': {
+        description: 'Compute fibonacci',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'number',
+            },
+          },
+        },
+      },
+    }
+  })
+  async fib(num: number) {return this.fibonacci(num)}
+  fibonacci(num: number): number {
+    if (num <= 1) return 1;
+    return this.fibonacci(num - 1) + this.fibonacci(num - 2);
+  }
+
 }
