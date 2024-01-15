@@ -3,6 +3,8 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import GuardarView from '../views/GuardarView.vue'
 import ModificarView from '../views/ModificarView.vue'
+import DetalleView from '../views/DetalleView.vue'
+import CorridasView from '../views/CorridasView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +28,16 @@ const router = createRouter({
       path: '/modificar/:id',
       name: 'modificar',
       component: ModificarView,
+    },
+    {
+      path: '/detalle/:id',
+      name: 'detalle',
+      component: DetalleView,
+    },
+    {
+      path: '/corrida/:id',
+      name: 'corrida',
+      component: CorridasView,
     }
   ]
 })

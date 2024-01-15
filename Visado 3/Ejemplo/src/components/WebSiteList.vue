@@ -6,9 +6,10 @@
                 <th>URL</th>
                 <th>Modificar</th>
                 <th>Eliminar</th>
+                <th>Acciones</th>
             </thead>
             <tbody>
-                <tr v-for="item in items">
+                <tr v-for="(item,index) in items">
                     <td>{{ item.name }}</td>
                     <td>{{ item.url }}</td>
                     <td>
@@ -33,6 +34,30 @@
                             </svg>
                         </button>
                     </td>
+                    <td style="display: flex;">
+                        <button class="boton" @click="() => { mostrarAcciones(index) }">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g id="Media / Play_Circle">
+                                    <g id="Vector">
+                                        <path
+                                            d="M3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12Z"
+                                            stroke="#000000" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                        <path d="M10 15V9L15 12L10 15Z" stroke="#000000" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </g>
+                                </g>
+                            </svg>
+                        </button>
+                        <div :id="'accion' + index" class="menuoptions" style="display: none;">
+                            <ul>
+                                <li @click="() => { verCorridas(item.id) }">Ver Corridas</li>
+                                <li>Realizar Busqueda</li>
+                                <li @click="() => { verDetalle(item.id) }">Ver Detalle</li>
+                            </ul>
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -41,7 +66,36 @@
 
 <script>
 export default {
-    props: ["items", "borrar", "modificar"]
+    data(){
+        return {
+            popupsShowed:this.items.map((e) => false)
+        }
+    },
+    props: ["items", "borrar", "modificar"],
+    methods: {
+        verDetalle(id){
+            this.$router.push('/detalle/' + id)
+        },
+        verCorridas(id){
+            this.$router.push('/corrida/' + id)
+        },
+        mostrarAcciones(index) {
+            const popup = document.getElementById('accion'+index)
+            if(this.popupsShowed[index]){
+                popup.style.display = 'none'
+                this.popupsShowed[index] = false
+            } else {
+                const popupShowedIndex = this.popupsShowed.findIndex((e) => e == true)
+                if(popupShowedIndex != -1){
+                    const popupToHint = document.getElementById('accion'+popupShowedIndex)
+                    this.popupsShowed[popupShowedIndex] = false
+                    popupToHint.style.display = 'none'
+                }
+                popup.style.display = 'block'
+                this.popupsShowed[index] = true
+            }
+        }
+    }
 }
 </script>
 <style>
@@ -73,10 +127,28 @@ thead {
     cursor: pointer;
 }
 
-.listado{
+.listado {
     display: flex;
     justify-content: center;
     flex-direction: column;
     width: 70%;
+}
+.menuoptions{
+    background-color: white;
+    padding: 0%;
+    position: absolute;
+    margin-left: 40px;
+}
+.menuoptions ul {
+    list-style: none;
+    padding: 0%;
+    margin: 0%;
+}
+.menuoptions ul li {
+    padding: 10px;
+    margin: 0%;
+}
+.menuoptions ul li:hover {
+    background-color: rgb(99, 146, 211);
 }
 </style>

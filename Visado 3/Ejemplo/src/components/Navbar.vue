@@ -2,7 +2,7 @@
     <nav>
         <img id="logo" src="../components/icons/logo.svg" alt="logo">
         <h1 id="tittle">Searchable Sites</h1>
-        <button v-if="true" @click="logout">Logout</button>
+        <button v-if="this.isAuthenticated" @click="logout">Logout</button>
     </nav>
 </template>
 

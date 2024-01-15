@@ -17,13 +17,18 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 import {Sitio} from '../models';
-import {SitioRepository} from '../repositories';
+import {CorridaRepository, SitioRepository} from '../repositories';
+
 
 export class SitioController {
   constructor(
     @repository(SitioRepository)
     public sitioRepository: SitioRepository,
+    @repository(CorridaRepository)
+    public corridaRepository: CorridaRepository
   ) { }
 
   @post('/sitios')
@@ -44,7 +49,57 @@ export class SitioController {
     })
     sitio: Sitio,
   ): Promise<Sitio> {
-    return this.sitioRepository.create(sitio);
+    const sitioCreado = await this.sitioRepository.create(sitio)
+    const timerId = setInterval(async () => {
+      try {
+        const sitio = await this.sitioRepository.find({where: {id: sitioCreado.id}})
+        if (sitio.length == 0) {
+          clearInterval(timerId)
+          console.log(`Timer para ${sitioCreado.name} finalizado`)
+          return
+        }
+        const url = sitioCreado.url
+        const {data} = await axios.get(url)
+        const $ = cheerio.load(data, {xml: true})
+
+        //Obtener texto main de wikipedia
+        const textoBody = $('div.mw-body-content').text()
+
+        //Obtener texto de parrafos
+        const paragraphs = $('p')
+        let paragraphsContent = ""
+        paragraphs.each((i, elem) => {
+          paragraphsContent += $(elem).text()
+        })
+
+        //Busqueda por niveles
+        const links = $('a')
+        links.each((i, elem) => {
+          console.log('link:', elem.attribs.href)
+        })
+
+        //Juntar todos los textos obtenidos
+        const finalText = textoBody + paragraphsContent
+
+        if (finalText == "") {
+          throw new Error("El texto es vacio")
+        }
+
+        this.corridaRepository.create({
+          date: new Date().toDateString(),
+          state: "completo",
+          content: finalText,
+          sitioId: sitioCreado.id
+        })
+
+        console.log('se genero una nueva corrida para ' + sitioCreado.name)
+
+      } catch (error) {
+        console.log('Error al generar corrida', error)
+      }
+
+    }, sitio.frequency * 1000)
+    return new Promise<Sitio>((res, rej) => {res(sitioCreado)});
   }
 
   @get('/sitios/count')
@@ -145,7 +200,9 @@ export class SitioController {
     description: 'Sitio DELETE success',
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
+    await this.corridaRepository.deleteAll({sitioId: id})
     await this.sitioRepository.deleteById(id);
+
   }
 
   @get('/sleep', {

@@ -7,13 +7,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,8 +23,8 @@ import {CorridaRepository} from '../repositories';
 export class CorridaController {
   constructor(
     @repository(CorridaRepository)
-    public corridaRepository : CorridaRepository,
-  ) {}
+    public corridaRepository: CorridaRepository,
+  ) { }
 
   @post('/corridas')
   @response(200, {
@@ -37,7 +37,7 @@ export class CorridaController {
         'application/json': {
           schema: getModelSchemaRef(Corrida, {
             title: 'NewCorrida',
-            
+
           }),
         },
       },
@@ -93,6 +93,22 @@ export class CorridaController {
     @param.where(Corrida) where?: Where<Corrida>,
   ): Promise<Count> {
     return this.corridaRepository.updateAll(corrida, where);
+  }
+
+  @get('/corridas/sitio/{id}')
+  @response(200, {
+    description: 'Corrida model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Corrida, {includeRelations: true}),
+      },
+    },
+  })
+  async findBySitioId(
+    @param.path.string('id') id: string,
+    @param.filter(Corrida, {exclude: 'where'}) filter?: FilterExcludingWhere<Corrida>
+  ): Promise<Corrida[]> {
+    return this.corridaRepository.find({where: {sitioId: id}});
   }
 
   @get('/corridas/{id}')
