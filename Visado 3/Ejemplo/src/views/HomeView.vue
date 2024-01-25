@@ -22,7 +22,7 @@ export default {
     return {
       url: 'http://[::1]:3000/sitios/',
       items: [],
-      isAuthenticated: this.$auth0.isAuthenticated,
+      isAuthenticated: this.$auth0 != undefined ? this.$auth0.isAuthenticated : true,
     }
   },
   methods: {

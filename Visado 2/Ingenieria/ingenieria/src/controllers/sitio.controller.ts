@@ -106,7 +106,7 @@ export class SitioController {
     return new Promise<Sitio>((res, rej) => {res(sitioCreado)});
   }
 
-  private recorridoRecursivo(url: string, levels: number) {
+  private async recorridoRecursivo(url: string, levels: number) {
     const {data} = await axios.get(url)
     if (levels == 0) {
       return data

@@ -9,7 +9,7 @@
 <script>
 export default {
     data(){
-        return { isAuthenticated: this.$auth0.isAuthenticated };
+        return { isAuthenticated: this.$auth0 != undefined ? this.$auth0.isAuthenticated : true };
     },
     methods: {
         logout() {
