@@ -5,6 +5,8 @@ import GuardarView from '../views/GuardarView.vue'
 import ModificarView from '../views/ModificarView.vue'
 import DetalleView from '../views/DetalleView.vue'
 import CorridasView from '../views/CorridasView.vue'
+import RealizarBusquedaView from '../views/RealizarBusquedaView.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +40,11 @@ const router = createRouter({
       path: '/corrida/:id',
       name: 'corrida',
       component: CorridasView,
+    },
+    {
+      path: '/busqueda/:id',
+      name: 'busqueda',
+      component: RealizarBusquedaView,
     }
   ]
 })

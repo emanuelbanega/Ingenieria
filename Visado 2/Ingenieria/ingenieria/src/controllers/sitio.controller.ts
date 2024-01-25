@@ -19,7 +19,7 @@ import {
 } from '@loopback/rest';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import {Sitio} from '../models';
+import {Corrida, Sitio} from '../models';
 import {CorridaRepository, SitioRepository} from '../repositories';
 
 
@@ -73,10 +73,14 @@ export class SitioController {
         })
 
         //Busqueda por niveles
+
+        let linksValidos: string[] = []
         const links = $('a')
         links.each((i, elem) => {
-          console.log('link:', elem.attribs.href)
+          if (elem.attribs.href != undefined && elem.attribs.href.includes('http'))
+            linksValidos.push(elem.attribs.href)
         })
+
 
         //Juntar todos los textos obtenidos
         const finalText = textoBody + paragraphsContent
@@ -102,6 +106,34 @@ export class SitioController {
     return new Promise<Sitio>((res, rej) => {res(sitioCreado)});
   }
 
+  private recorridoRecursivo(url: string, levels: number) {
+    const {data} = await axios.get(url)
+    if (levels == 0) {
+      return data
+    }
+    const $ = cheerio.load(data, {xml: true})
+
+    //Obtener texto main de wikipedia
+    const textoBody = $('div.mw-body-content').text()
+
+    //Obtener texto de parrafos
+    const paragraphs = $('p')
+    let paragraphsContent = ""
+    paragraphs.each((i, elem) => {
+      paragraphsContent += $(elem).text()
+    })
+
+    //Busqueda por niveles
+
+    let linksValidos: string[] = []
+    const links = $('a')
+    links.each((i, elem) => {
+      if (elem.attribs.href != undefined && elem.attribs.href.includes('http'))
+        linksValidos.push(elem.attribs.href)
+    })
+    return
+  }
+
   @get('/sitios/count')
   @response(200, {
     description: 'Sitio model count',
@@ -111,6 +143,37 @@ export class SitioController {
     @param.where(Sitio) where?: Where<Sitio>,
   ): Promise<Count> {
     return this.sitioRepository.count(where);
+  }
+
+  @get('/api/search/{word}')
+  @response(200, {
+    description: 'Sitio model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Sitio, {includeRelations: true}),
+      },
+    },
+  })
+  async findByKeyWord(
+    @param.path.string('word') word: string,
+  ): Promise<Corrida[]> {
+    return this.corridaRepository.find({where: {content: {like: word}}})
+  }
+
+  @get('/sitios/{id}/{word}')
+  @response(200, {
+    description: 'Sitio model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Sitio, {includeRelations: true}),
+      },
+    },
+  })
+  async findByKeyWordInSite(
+    @param.path.string('word') word: string,
+    @param.path.string('id') id: string,
+  ): Promise<Corrida[]> {
+    return this.corridaRepository.find({where: {content: {like: word}, sitioId: id}})
   }
 
   @get('/sitios')

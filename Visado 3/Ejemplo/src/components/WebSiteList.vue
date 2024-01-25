@@ -53,7 +53,7 @@
                         <div :id="'accion' + index" class="menuoptions" style="display: none;">
                             <ul>
                                 <li @click="() => { verCorridas(item.id) }">Ver Corridas</li>
-                                <li>Realizar Busqueda</li>
+                                <li @click="() => { realizarBusqueda(item.id) }">Realizar Busqueda</li>
                                 <li @click="() => { verDetalle(item.id) }">Ver Detalle</li>
                             </ul>
                         </div>
@@ -78,6 +78,9 @@ export default {
         },
         verCorridas(id){
             this.$router.push('/corrida/' + id)
+        },
+        realizarBusqueda(id){
+            this.$router.push('/busqueda/' + id)
         },
         mostrarAcciones(index) {
             const popup = document.getElementById('accion'+index)

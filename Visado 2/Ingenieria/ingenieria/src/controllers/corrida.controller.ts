@@ -44,6 +44,7 @@ export class CorridaController {
     })
     corrida: Corrida,
   ): Promise<Corrida> {
+    corrida.content = corrida.content.toLowerCase()
     return this.corridaRepository.create(corrida);
   }
 
